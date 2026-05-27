@@ -6,12 +6,12 @@ In contrast to conventional approaches that rely on overall pore geometries, PoL
 
 ---
 ## Table of Contents
-- [[Scientific Background]]
+- [Scientific Background](/PoLA_MANUAL/Scientific_Background.md)
 - [Features](/PoLA_MANUAL/Features.md)
-- [[Content]]
-- [[Requirements]]
-- [[Installation]]
-- [[Usage]]
-	- [[The input file]] 
-	- [[The output files]]
+- [Content](/PoLA_MANUAL/Content.md)
+- [Requirements](/PoLA_MANUAL/Requirements.md)
+- [Installation](/PoLA_MANUAL/Installation.md)
+- [Usage](/PoLA_MANUAL/Usage/Usage.md)
+	- [The input file](/PoLA_MANUAL/Usage/The_input_file.md)
+	- [The output files](/PoLA_MANUAL/Usage/The_output_files.md)
 
