@@ -1,0 +1,2 @@
+- Fortran compiler (tested with `gfortran`)
+- Unix-like environment
