@@ -7,7 +7,7 @@ In contrast to conventional approaches that rely on overall pore geometries, PoL
 ---
 ## Table of Contents
 - [[Scientific Background]]
-- [Features](PoLA_MANUAL/Features.md)
+- [Features](/PoLA_MANUAL/Features.md)
 - [[Content]]
 - [[Requirements]]
 - [[Installation]]
