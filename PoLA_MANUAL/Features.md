@@ -1,3 +1,5 @@
+## Features
+
 - Local (block-by-block) description of void space
 - Geometry-independent characterization
 - Based on physically meaningful quantity (MinD)
