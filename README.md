@@ -22,4 +22,4 @@ pip install numpy pandas scikit-learn matplotlib joblib
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 ```
 
-The manual can be found [here](/src/MANUAL.md)
+The manual can be found [here](/src/PoLA_site_script/README.md)
