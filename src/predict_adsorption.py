@@ -35,6 +35,7 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     parser.add_argument('--format',help='Isotherm format: excess adsorption data as mol/g or CC(STP)/g. Available options are "mol" (for mol/g) and "cc" (for CC(STP)/g).',default="mol")
     parser.add_argument('--output',help='Output files prefix.',default="")
     parser.add_argument('--method',help='regressor method',default="regular")
+    parser.add_argument('--hide',help='Does not show graphs',action='store_true')
     # parser.add_argument('--tot_vol',help='Total volume',default=1.42)
 
     args = parser.parse_args()
@@ -97,8 +98,12 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     
     model_path = scrpath / pathlib.Path(f"{method}")
     
+    #---------------------------------------------------------------------------------------------#
     #running inference
     idx,Ypred,Zpred = run_inference(input_df, out_d , model_path) 
+    #---------------------------------------------------------------------------------------------#
+    
+    #Now outputting results.
     
     #Plotting VminD
     
@@ -107,7 +112,15 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     plt.xlabel(r"$\AA$")
     plt.ylabel(r"$cm^3/g$")
     plt.savefig(getcwd()+f"/predictions/{output}VminD.png",dpi=300)
-    plt.show()
+    
+    if not args.hide:
+        plt.show()
+    
+    #Writing VMinD data to file
+    with open(out_d+f"{output}VminD.dat","w") as out_VMinD:
+        out_VMinD.write("# MinD(A)\tV(MinD)(cm3/g)\n")
+        for d,Vd in zip(range(1,61,1),Zpred[0,:]):
+            out_VMinD.write(f"{d}\t{Vd}\n")
     
     #Plotting simplified VminD
     
@@ -143,7 +156,14 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     ax.set_ylabel(r"Porous volume $cm^3/g$")
     ax.set_xticks(range(1,7), labels)
     plt.savefig(getcwd()+f"/predictions/{output}VminD_simplified.png",dpi=300)
-    plt.show()
+    if not args.hide:
+        plt.show()
+    
+    #Writing simplified VMinD data to file
+    with open(out_d+f"{output}VminD_simplified.dat","w") as out_sVMinD:
+        out_sVMinD.write("# Category\tV(MinD)(cm3/g)\n")
+        for cat,Vd in zip(labels,sVminD):
+            out_sVMinD.write(f"{cat}\t{Vd}\n")
     
     
     #Plotting Cumulative VMinD
@@ -156,8 +176,14 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     plt.xlabel(r"$\AA$")
     plt.ylabel(r"$cm^3/g$")
     plt.savefig(getcwd()+f"/predictions/{output}VminD_cumulative.png",dpi=300)
-    plt.show()
+    if not args.hide:
+        plt.show()
     
+    #Writing cumulative VMinD data to file
+    with open(out_d+f"{output}VminD_cumulative.dat","w") as out_cVMinD:
+        out_cVMinD.write("# MinD(A)\tcumulative_V(MinD)\n")
+        for d,cVd in zip(range(1,61,1),cumulative_VMinD):
+            out_cVMinD.write(f"{d}\t{cVd}(cm3/g)\n")
     
     #Plotting H2 isotherm
     plt.title(r"$H_2$ excess adsorption @77K")
@@ -166,8 +192,13 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     plt.xlabel("P (bar)")
     plt.ylabel("Excess ads. (mol/kg)")
     plt.savefig(getcwd()+f"/predictions/{output}predicted_H2_isotherm_77K.png",dpi=300)
-    plt.show()
+    if not args.hide:
+        plt.show()
     
-
+    #Writing estimated H2 isotherm data to file
+    with open(out_d+f"{output}VminD_cumulative.dat","w") as out_cVMinD:
+        out_cVMinD.write("# P(bar)\tExcess_H2_adsorption(mol/kg)\n")
+        for p,adsH2 in zip(H2_pressures,Ypred[0,:]*1000):
+            out_cVMinD.write(f"{p}\t{adsH2}\n")
 
 
