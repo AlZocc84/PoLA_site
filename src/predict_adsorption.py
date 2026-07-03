@@ -25,7 +25,7 @@ gTest = False
 
 if __name__ == "__main__" and not gTest:
 
-    parser = argparse.ArgumentParser(description=''' Use a Neural Network trained on the carbon model dataset to estimate the porous volume distribution (PVD)
+    parser = argparse.ArgumentParser(description=''' Use a machine learning model trained on the carbon model dataset to estimate the porous volume distribution (PVD)
 and predict the H2 adsorption isotherm from a N2 adsorption isotherm
 Require as argument the name of the system (e.g. maxsorb_H2)
 Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt" 
