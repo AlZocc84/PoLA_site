@@ -109,8 +109,8 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     
     plt.title("VminD")
     plt.bar(range(1,61,1),Zpred[0,:])
-    plt.xlabel(r"$\AA$")
-    plt.ylabel(r"$cm^3/g$")
+    plt.xlabel(r"$Å$")
+    plt.ylabel(r"$\mathrm{cm}^3/\mathrm{g}$")
     plt.savefig(getcwd()+f"/predictions/{output}VminD.png",dpi=300)
     
     if not args.hide:
@@ -145,15 +145,15 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
             
     tot=u+m+sm+lm+mc
     sVminD = [tot,u,m,sm,lm,mc]
-    labels = ["Total",r"< 7 $\AA$",r"7$\AA$-20$\AA$",r"20$\AA$-35$\AA$",r"35$\AA$-50$\AA$",r">50$\AA$"]
+    labels = ["Total",r"< 7 $\mathrm{Å}$",r"7$\mathrm{Å}$-20$\mathrm{Å}$",r"20$\mathrm{Å}$-35$\mathrm{Å}$",r"35$\mathrm{Å}$-50$\mathrm{Å}$",r">50$\mathrm{Å}$"]
     bar_colors = ['lightgray', 'red', 'mediumblue', 'greenyellow','mediumslateblue']
     
     fig,ax = plt.subplots()
     ax.set_title("Simplified VminD")
 
     ax.bar(range(1,7),sVminD,color=bar_colors)
-    ax.set_xlabel(r"MinD $\AA$")
-    ax.set_ylabel(r"Porous volume $cm^3/g$")
+    ax.set_xlabel(r"MinD $\mathrm{Å}$")
+    ax.set_ylabel(r"Porous volume $\mathrm{cm}^3/\mathrm{g}$")
     ax.set_xticks(range(1,7), labels)
     plt.savefig(getcwd()+f"/predictions/{output}VminD_simplified.png",dpi=300)
     if not args.hide:
@@ -170,11 +170,12 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     
     cumulative_VMinD = np.cumsum(Zpred)
     
-    plt.title("Cumulative VminD")
+    fig,ax = plt.subplots()
+    ax.set_title("Cumulative VminD")
 
-    plt.plot(range(1,61,1),cumulative_VMinD,marker='s', markersize=3, linestyle='-', linewidth = 0.5)
-    plt.xlabel(r"$\AA$")
-    plt.ylabel(r"$cm^3/g$")
+    ax.plot(range(1,61,1),cumulative_VMinD,marker='s', markersize=3, linestyle='-', linewidth = 0.5)
+    ax.set_xlabel(r"$\mathrm{Å}$")
+    ax.set_ylabel(r"$\mathrm{cm}^3/\mathrm{g}$")
     plt.savefig(getcwd()+f"/predictions/{output}VminD_cumulative.png",dpi=300)
     if not args.hide:
         plt.show()
@@ -186,11 +187,12 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
             out_cVMinD.write(f"{d}\t{cVd}(cm3/g)\n")
     
     #Plotting H2 isotherm
-    plt.title(r"$H_2$ excess adsorption @77K")
+    fig,ax = plt.subplots()
+    ax.set_title(r"$\mathrm{H}_2$ excess adsorption @77K")
 
-    plt.plot(H2_pressures,Ypred[0,:]*1000,marker='.', markersize=4, linestyle='-', linewidth = 0.5)
-    plt.xlabel("P (bar)")
-    plt.ylabel("Excess ads. (mol/kg)")
+    ax.plot(H2_pressures,Ypred[0,:]*1000,marker='.', markersize=4, linestyle='-', linewidth = 0.5)
+    ax.set_xlabel("P (bar)")
+    ax.set_ylabel("Excess ads. (mol/kg)")
     plt.savefig(getcwd()+f"/predictions/{output}predicted_H2_isotherm_77K.png",dpi=300)
     if not args.hide:
         plt.show()
