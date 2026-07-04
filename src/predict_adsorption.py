@@ -67,12 +67,10 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     #: get isotherm data. Assuming (for now) the experimental file has already been processed to get the interpolated adsorption at the fixed N2 pressures.
     n_headers_rows = 0
     isotherm_data_orig = np.loadtxt(isotherm,skiprows=n_headers_rows)
-    approx_mols = interp1d(isotherm_data_orig[:,0],isotherm_data_orig[:,1])
-    ads_mols  = approx_mols(N2_pressures)
-    
-    approx_cc = interp1d(isotherm_data_orig[:,0],isotherm_data_orig[:,2])
-    ads_cc  = approx_cc(N2_pressures)
-    isotherm_data = np.column_stack((np.array(N2_pressures),ads_mols,ads_cc))
+    approx = interp1d(isotherm_data_orig[:,0],isotherm_data_orig[:,1])
+    ads  = approx(N2_pressures)
+
+    isotherm_data = np.column_stack((np.array(N2_pressures),ads))
    
         
     print(isotherm_data.shape)
@@ -82,7 +80,7 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     if args.format == "mol":
         tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*28/0.807 #volume in CC per sample. Adjusted to improve NN predictivity.
     elif args.format == "cc":
-        tot_vol = (fact*isotherm_data[-1,2]+(1-fact)*isotherm_data[-2,2])*0.001545 #volume in CC per sample. Adjusted to improve NN predictivity.
+        tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*0.001545 #volume in CC per sample. Adjusted to improve NN predictivity.
 
     print(tot_vol)
     #preparation of df for inference.py
