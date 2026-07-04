@@ -18,6 +18,7 @@ from inference import run_inference
 import pandas as pd
 import pathlib
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 #%% Script entrypoint.
 import argparse
 
@@ -66,26 +67,29 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     #: get isotherm data. Assuming (for now) the experimental file has already been processed to get the interpolated adsorption at the fixed N2 pressures.
     n_headers_rows = 0
     isotherm_data_orig = np.loadtxt(isotherm,skiprows=n_headers_rows)
-    if len(N2_pressures) != isotherm_data_orig.shape[0]:
-        ads = np.interp(N2_pressures,isotherm_data_orig[:,0],isotherm_data_orig[:,])
-        isotherm_data = np.column_stack((np.array(N2_pressures),ads))
-    else:
-        isotherm_data = isotherm_data_orig
+    approx_mols = interp1d(isotherm_data_orig[:,0],isotherm_data_orig[:,1])
+    ads_mols  = approx_mols(N2_pressures)
+    
+    approx_cc = interp1d(isotherm_data_orig[:,0],isotherm_data_orig[:,2])
+    ads_cc  = approx_cc(N2_pressures)
+    isotherm_data = np.column_stack((np.array(N2_pressures),ads_mols,ads_cc))
+   
         
+    print(isotherm_data.shape)
     #Computing total volume
     fact = 0.5
 
     if args.format == "mol":
-    
-        tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*28/0.808 #volume in CC per sample. Adjusted to improve NN predictivity.
+        tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*28/0.807 #volume in CC per sample. Adjusted to improve NN predictivity.
     elif args.format == "cc":
-        tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*0.001545 #volume in CC per sample. Adjusted to improve NN predictivity.
+        tot_vol = (fact*isotherm_data[-1,2]+(1-fact)*isotherm_data[-2,2])*0.001545 #volume in CC per sample. Adjusted to improve NN predictivity.
 
+    print(tot_vol)
     #preparation of df for inference.py
     input_dict= {"Sample" :  "Test"}
     for ip,ads in enumerate(isotherm_data[:,1]):
         if args.format == "cc": #converting between CC(STP)/g to mol/g
-            ads = ads/22414 # mol/g
+            ads = ads/22400 # mol/g
         input_dict[f"adsor{ip}"] = [ads]
     input_dict["Total volume"] = [tot_vol]
         
