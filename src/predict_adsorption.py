@@ -15,6 +15,7 @@ from pprint import pprint
 from datetime import datetime
 import numpy as np
 from inference import run_inference
+from surface import compute_SSA
 import pandas as pd
 import pathlib
 import matplotlib.pyplot as plt
@@ -106,6 +107,9 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     idx,Ypred,Zpred = run_inference(input_df, out_d , model_path) 
     #---------------------------------------------------------------------------------------------#
     
+    asa = compute_SSA(Zpred[0,:])
+    with open(out_d+f"{output}SSA.dat","w") as out_SSA:
+        out_SSA.write(f"The asa is {asa:6.2f} m^2/g\n")
     #Now outputting results.
     
     #Plotting VminD
