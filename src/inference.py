@@ -174,11 +174,11 @@ def run_inference(input_df,out_dir,model_path):
     path_Gout = join(out_dir, 'Predicted_H2_isotherm_77K.csv')
     path_Vout = join(out_dir, 'VminD.csv')
 
-    print(f"Saving predicted gas-out to {path_Gout}")
-    save_prediction(idx, Ypred, path_Gout)
+    # print(f"Saving predicted gas-out to {path_Gout}")
+    # save_prediction(idx, Ypred, path_Gout)
 
-    print(f"Saving predicted VMinD to {path_Vout}")
-    save_prediction(idx, Zpred, path_Vout)
+    # print(f"Saving predicted VMinD to {path_Vout}")
+    # save_prediction(idx, Zpred, path_Vout)
 
     return (idx,Ypred,Zpred)
     print("[Done]")
