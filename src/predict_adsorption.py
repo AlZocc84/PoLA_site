@@ -37,11 +37,11 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     parser.add_argument('--output',help='Output files prefix.',default="")
     parser.add_argument('--method',help='regressor method',default="regular")
     parser.add_argument('--hide',help='Does not show graphs',action='store_true')
-    # parser.add_argument('--tot_vol',help='Total volume',default=1.42)
+    parser.add_argument('--tot_vol',help='Total volume',default=False)
 
     args = parser.parse_args()
     isotherm_f = args.isotherm
-    # tot_vol = float(args.tot_vol)
+    tot_vol = float(args.tot_vol)
     output = args.output
     if len(output) > 0:
         output = output + "_"
@@ -77,10 +77,11 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     #Computing total volume
     fact = 0.5
 
-    if args.format == "mol":
-        tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*28/0.807 #volume in CC per sample. Adjusted to improve NN predictivity.
-    elif args.format == "cc":
-        tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*0.001545 #volume in CC per sample. Adjusted to improve NN predictivity.
+    if not args.tot_vol:
+        if args.format == "mol":
+            tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*28/0.807 #volume in CC per sample. Adjusted to improve NN predictivity.
+        elif args.format == "cc":
+            tot_vol = (fact*isotherm_data[-1,1]+(1-fact)*isotherm_data[-2,1])*0.001545 #volume in CC per sample. Adjusted to improve NN predictivity.
 
     print(tot_vol)
     #preparation of df for inference.py
@@ -120,9 +121,9 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     
     #Writing VMinD data to file
     with open(out_d+f"{output}VminD.dat","w") as out_VMinD:
-        out_VMinD.write("# MinD(A)\tV(MinD)(cm3/g)\n")
+        out_VMinD.write("# MinD(Å)\tV(MinD)(cm^3/gÅ)\n")
         for d,Vd in zip(range(1,61,1),Zpred[0,:]):
-            out_VMinD.write(f"{d}\t{Vd}\n")
+            out_VMinD.write(f"{d}\t{Vd:3.4f}\n")
     
     #Plotting simplified VminD
     
@@ -162,10 +163,11 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
         plt.show()
     
     #Writing simplified VMinD data to file
+    f_labels = ["Total",r"< 7 Å",r"7Å-20Å",r"20Å-35Å",r"35Å-50Å",r">50Å"]
     with open(out_d+f"{output}VminD_simplified.dat","w") as out_sVMinD:
         out_sVMinD.write("# Category\tV(MinD)(cm3/g)\n")
-        for cat,Vd in zip(labels,sVminD):
-            out_sVMinD.write(f"{cat}\t{Vd}\n")
+        for cat,Vd in zip(f_labels,sVminD):
+            out_sVMinD.write(f"{cat}\t{Vd:4.3f}\n")
     
     
     #Plotting Cumulative VMinD
@@ -184,9 +186,9 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     
     #Writing cumulative VMinD data to file
     with open(out_d+f"{output}VminD_cumulative.dat","w") as out_cVMinD:
-        out_cVMinD.write("# MinD(A)\tcumulative_V(MinD)\n")
+        out_cVMinD.write("# MinD(Å)\tcumulative_V(MinD)(cm3/g)\n")
         for d,cVd in zip(range(1,61,1),cumulative_VMinD):
-            out_cVMinD.write(f"{d}\t{cVd}(cm3/g)\n")
+            out_cVMinD.write(f"{d}\t{cVd:4.3f}\n")
     
     #Plotting H2 isotherm
     fig,ax = plt.subplots()
@@ -200,9 +202,9 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
         plt.show()
     
     #Writing estimated H2 isotherm data to file
-    with open(out_d+f"{output}VminD_cumulative.dat","w") as out_cVMinD:
+    with open(out_d+f"{output}H2_adsorption_predicted.dat","w") as out_cVMinD:
         out_cVMinD.write("# P(bar)\tExcess_H2_adsorption(mol/kg)\n")
         for p,adsH2 in zip(H2_pressures,Ypred[0,:]*1000):
-            out_cVMinD.write(f"{p}\t{adsH2}\n")
+            out_cVMinD.write(f"{p:.2E}\t{adsH2:4.3f}\n")
 
 
