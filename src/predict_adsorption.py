@@ -109,7 +109,8 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     
     ssa = compute_SSA(Zpred[0,:])
     with open(out_d+f"{output}SSA.dat","w") as out_SSA:
-        out_SSA.write(f"The SSA is {ssa:6.2f} m^2/g\n")
+        out_SSA.write(f"# SSA(m^2/g)\n")
+        out_SSA.write(f"{ssa:6.2f}")
     #Now outputting results.
     
     #Plotting VminD
