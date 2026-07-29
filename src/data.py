@@ -10,10 +10,16 @@ def load_both_data(path_input_gas, path_output_gas, cumulate_vol=False, normaliz
     return (idxin, Xin, Yin, Yout) if return_index else (Xin, Yin, Yout)
 
 
-def load_data(path, cumulate_x=False, normalize=False, return_index=False, exclude_id=None):
+def load_both_data_SSA(path_input_gas, path_output_gas, cumulate_vol=False, normalize=False, return_index=False, exclude_id=None):
+    idxin, Xin, Yin = load_data(path_input_gas, cumulate_x=cumulate_vol, normalize=normalize, return_index=True, exclude_id=exclude_id)
+    idxout, Xout, Yout  = load_data(path_output_gas, cumulate_x=cumulate_vol, normalize=normalize, return_index=True, exclude_id=exclude_id, has_volume =False, has_SSA= True)
+    assert all(idxin==idxout), f'index mismatch in files {path_input_gas} and {path_output_gas}'
+    return (idxin, Xin, Yin, Yout) if return_index else (Xin, Yin, Yout)
+
+def load_data(path, cumulate_x=False, normalize=False, return_index=False, exclude_id=None, has_volume = True, has_SSA = False):
     df = pd.read_csv(path)
 
-    if exclude_id is not None:
+    if len(exclude_id) > 0:
         df = df[~df['Sample'].isin(exclude_id)]
 
     df.columns = df.columns.str.strip()
@@ -25,7 +31,10 @@ def load_data(path, cumulate_x=False, normalize=False, return_index=False, exclu
 
     X = df[feature_cols]
     Y = df[adsor_cols]
-    total_vol = df['Total volume']
+    if has_volume:
+        total_vol = df['Total volume']
+    if has_SSA:
+        ssa = df['SSA']
 
     n, Xcol = X.shape
     X = X.loc[:, (X != 0).any()]
@@ -37,12 +46,16 @@ def load_data(path, cumulate_x=False, normalize=False, return_index=False, exclu
 
     X = X.values
     Y = Y.values
-    total_vol = total_vol.values
+    if has_volume:
+        total_vol = total_vol.values
+    if has_SSA:
+        Y = np.array([ssa.values,])
+    
 
     if cumulate_x:
         X = np.cumsum(X, axis=1)
 
-    if normalize:
+    if normalize and has_volume:
         X /= total_vol[:, np.newaxis]
         Y /= total_vol[:, np.newaxis]
 
