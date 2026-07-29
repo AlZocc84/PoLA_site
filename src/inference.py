@@ -7,7 +7,7 @@ import pickle
 from os.path import join
 
 from data import load_test_data, prepare_test_data
-from training import *
+from training_SSA import * #Modified just for testing the SSA prediction
 from regression import closest_to_mean
 import argparse
 import numpy as np
@@ -129,6 +129,62 @@ if __name__ == '__main__':
 #%%
 def run_inference(input_df,out_dir,model_path):
 
+
+    idx, Gin, tot_vol = prepare_test_data(input_df, normalize=True, return_index=True, return_normalization_col=True)
+
+    model_params = pickle.load(open(join(model_path, 'params.dict'), 'rb'))
+    Gi_dim = model_params['Gi_dim']
+    V_dim = model_params['V_dim']
+    Go_dim = model_params['Go_dim']
+    assert Gin.shape[1] == Gi_dim, \
+        (f'Unexpected dimension for input gas. Expected by the model: {Gi_dim}, '
+         f'found in input dataframe: {Gin.shape[1]}')
+
+    print('Loading AE-type 1 over (z,y)')
+    PAEzy = NewPAEzy().load_model(join(model_path, 'best_model_AEzy.pt'))
+
+    print('Loading AE-type 1 over (Z,Y)')
+    PAEZY = NewPAEZY(Gi_dim, V_dim, Go_dim).load_model(join(model_path, 'best_model_AEZY.pt'))
+
+    print('Loading AE-type 2 over (z,y)')
+    PAE2zy = NewPAE2zy().load_model(join(model_path, 'best_model_AE2zy.pt'))
+
+    print('Loading AE-type 2 over (Z,Y)')
+    PAE2ZY = NewPAE2ZY(Gi_dim, V_dim, Go_dim).load_model(join(model_path, 'best_model_AE2ZY.pt'))
+
+    print("[Done]")
+
+    Y1, _, Z1 = PAEzy.predict(Gin, return_XZ=True)
+    Y2, _, Z2 = PAEZY.predict(Gin, return_XZ=True)
+    Y3, _, Z3 = PAE2zy.predict(Gin, return_XZ=True)
+    Y4, _, Z4 = PAE2ZY.predict(Gin, return_XZ=True)
+
+
+    # out-gas is taken as an ensemble of 4 models, and returns the "closest to mean" curve
+    Ypred = np.asarray([closest_to_mean(curves=list(preds)) for preds in zip(Y1, Y2, Y3, Y4)])
+    Ypred *= tot_vol
+
+    # out-vol is taken from PAE2zy
+    Zpred = Z3*tot_vol
+    Zpred = np.clip(Zpred, a_min=0, a_max=tot_vol)
+    Zpred = np.diff(Zpred, axis=1, prepend=0)
+    Zpred = np.clip(Zpred, a_min=0, a_max=None)
+
+    # saving predictions to file
+    path_Gout = join(out_dir, 'Predicted_H2_isotherm_77K.csv')
+    path_Vout = join(out_dir, 'VminD.csv')
+
+    # print(f"Saving predicted gas-out to {path_Gout}")
+    # save_prediction(idx, Ypred, path_Gout)
+
+    # print(f"Saving predicted VMinD to {path_Vout}")
+    # save_prediction(idx, Zpred, path_Vout)
+
+    return (idx,Ypred,Zpred)
+    print("[Done]")
+#%% infer SSA
+def run_inference_SSA(input_df,out_dir,model_path):
+#TODO: Implement SSA learning and prediction.   
 
     idx, Gin, tot_vol = prepare_test_data(input_df, normalize=True, return_index=True, return_normalization_col=True)
 
