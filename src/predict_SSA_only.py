@@ -9,14 +9,13 @@ Data preparation for adsorption prediction
 
 #%% Basic imports
 from os import getcwd
-from os.path import isfile
-#from copy import deepcopy
-#from pprint import pprint
-#from datetime import datetime
+from os.path import isfile, isdir
+from copy import deepcopy
+from pprint import pprint
+from datetime import datetime
 import numpy as np
-from inference import run_inference
-from RF_SSA import ssa_rf
-#from surface import compute_SSA
+from inference import run_inference_SSA
+from surface import compute_SSA
 import pandas as pd
 import pathlib
 import matplotlib.pyplot as plt
@@ -101,14 +100,20 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
     out_d = getcwd()+"/predictions/" #Expecting these dirs to be in the same dir as the script.
     scrpath = pathlib.Path(__file__).parent.resolve()
     
-    model_path = scrpath / pathlib.Path(f"{method}")
+    # model_path = scrpath / pathlib.Path(f"{method}")
+    model_path = "/home/alberto/UPO/Ricerca/Porous_materials/training_nn_PoLA_SSA/ssa_regressor"
+
     
     #---------------------------------------------------------------------------------------------#
     #running inference
-    idx,Ypred,Zpred = run_inference(input_df, out_d , model_path) 
+    idx,Ypred,Zpred = run_inference_SSA(input_df, out_d , model_path) 
     #---------------------------------------------------------------------------------------------#
     
-   
+    ssa = Zpred[0,0]
+    print(ssa)
+    with open(out_d+f"{output}SSA.dat","w") as out_SSA:
+        out_SSA.write(f"# SSA(m^2/g)\n")
+        out_SSA.write(f"{ssa:6.2f}")
     #Now outputting results.
     
     #Plotting VminD
@@ -193,29 +198,9 @@ Expect in the same directory the N2 isotherm file: f"{name}_N2_isotherm.txt"
         for d,cVd in zip(range(1,61,1),cumulative_VMinD):
             out_cVMinD.write(f"{d}\t{cVd:4.3f}\n")
     
-    #computing SSA via RF
-    ssa = ssa_rf(cumulative_VMinD)
-    with open(out_d+f"{output}SSA.dat","w") as out_SSA:
-        out_SSA.write(f"# SSA(m^2/g)\n")
-        out_SSA.write(f"{ssa:6.2f}")
-    
-    
-    
-    #Plotting H2 isotherm
-    fig,ax = plt.subplots()
-    ax.set_title(r"$\mathrm{H}_2$ excess adsorption @77K")
 
-    ax.plot(H2_pressures,Ypred[0,:]*1000,marker='.', markersize=4, linestyle='-', linewidth = 0.5)
-    ax.set_xlabel("P (bar)")
-    ax.set_ylabel("Excess ads. (mol/kg)")
-    plt.savefig(getcwd()+f"/predictions/{output}predicted_H2_isotherm_77K.png",dpi=300)
-    if not args.hide:
-        plt.show()
+
     
-    #Writing estimated H2 isotherm data to file
-    with open(out_d+f"{output}H2_adsorption_predicted.dat","w") as out_cVMinD:
-        out_cVMinD.write("# P(bar)\tExcess_H2_adsorption(mol/kg)\n")
-        for p,adsH2 in zip(H2_pressures,Ypred[0,:]*1000):
-            out_cVMinD.write(f"{p:.2E}\t{adsH2:4.3f}\n")
+
 
 
